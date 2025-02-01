@@ -1,51 +1,60 @@
-import argparse
+from fastapi import FastAPI, WebSocket, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+import cv2
 from ultralytics import YOLO
+import asyncio
 import uvicorn
-from fastapi import FastAPI
+import numpy as np
 
 app = FastAPI()
-FILENAME="yolov8n.pt"
-@app.get("/")
-def read_root():
-    """Endpoint to check if the YOLO web server is running."""
-    return {"message": "YOLO Web Server Running"}
 
-def run_web_server():
-    """Starts a FastAPI web server on port 8000."""
-    print("Starting web server...")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Load YOLO model
+model = YOLO('models/best.pt')  # Make sure to have your best.pt model in the directory
 
-def train_model():
-    """Trains the YOLO model using the specified dataset and parameters."""
-    print("Training YOLO model...")
-    model = YOLO(FILENAME)  # Load pre-trained YOLOv8 model
-    model.train(data="data.yaml", epochs=50, imgsz=640, batch=8)
-    model.export(format="onnx")  # Convert for deployment
+# Mount static files and templates
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-def evaluate_model():
-    """Loads and evaluates the YOLO model on test images and webcam feed."""
-    print("Evaluating YOLO model...")
-    model = YOLO(FILENAME)
-    model.predict(source="dataset/images/test", show=True, conf=0.5)
-    model.predict(source=0, show=True, conf=0.5)
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-def main():
-    """Parses command-line arguments and runs the corresponding function."""
-    parser = argparse.ArgumentParser(description="YOLO Command-line tool")
-    parser.add_argument("-w", action="store_true", help="Run web server")
-    parser.add_argument("-t", action="store_true", help="Train the model")
-    parser.add_argument("-e", action="store_true", help="Evaluate the model")
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
     
-    args = parser.parse_args()
-    
-    if args.w:
-        run_web_server()
-    elif args.t:
-        train_model()
-    elif args.e:
-        evaluate_model()
-    else:
-        parser.print_help()
+    # Initialize camera
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        await websocket.send_text("Error: Could not open camera")
+        return
+
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # Perform detection
+            results = model(frame)
+            annotated_frame = results[0].plot()  # Get annotated frame
+
+            # Convert frame to JPEG
+            ret, buffer = cv2.imencode('.jpg', annotated_frame)
+            if not ret:
+                continue
+
+            # Send frame through WebSocket
+            await websocket.send_bytes(buffer.tobytes())
+            await asyncio.sleep(0.033)  # ~30fps
+
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        cap.release()
+        await websocket.close()
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(app, host="0.0.0.0", port=8000)

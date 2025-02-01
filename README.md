@@ -1,7 +1,17 @@
-# ParkingAI (in process)
+# SimonsParkingAI (in process)
 Parking AI system for Eafit univercity
 
-Here's a **linear pipeline** for training and deploying a **YOLO model for parking slot detection**:
+### Run
+
+     pip install -r requieriments.txt 
+
+     python main.py
+
+add go to
+
+   http://localhost:8000/
+
+**linear pipeline** for training and deploying a **YOLO model for parking slot detection**:
 
 ---
 
@@ -84,7 +94,7 @@ Our yolo model [https://huggingface.co/smartinezg/Yolo_parking/tree/main](https:
 ---
 
 ### **6 Final Deployment & Monitoring**
-   - Deploy to **Raspberry Pi**
+   - Deploy to **Raspberry Pi** in a web interface
 
 
 

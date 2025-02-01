@@ -4,3 +4,6 @@ websockets
 opencv-python-headless
 numpy
 uvicorn
+opencv-python
+python-multipart 
+torch

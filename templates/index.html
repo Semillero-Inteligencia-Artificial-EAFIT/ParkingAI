@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Object Detection</title>
+</head>
+<body>
+    <h1>Real-Time Object Detection</h1>
+    <img id="videoFeed" width="640" height="480">
+    
+    <script>
+        const img = document.getElementById('videoFeed');
+        const ws = new WebSocket('ws://' + window.location.host + '/ws');
+        
+        ws.binaryType = 'arraybuffer';
+        
+        ws.onmessage = function(event) {
+            const blob = new Blob([event.data], {type: 'image/jpeg'});
+            const url = URL.createObjectURL(blob);
+            img.src = url;
+        };
+        
+        ws.onclose = function() {
+            console.log('WebSocket connection closed');
+        };
+    </script>
+</body>
+</html>
