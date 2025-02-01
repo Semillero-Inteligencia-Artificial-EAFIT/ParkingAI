@@ -7,10 +7,10 @@ Here's a **linear pipeline** for training and deploying a **YOLO model for parki
 
 ### **1️ Collect & Prepare Data**
    - Download a dataset or create it, (We can mix both thecniques for learning prouses)
-   [PKLot](https://public.roboflow.com/object-detection/pklot)
-   [CNRPark-EXT](http://cnrpark.it/)
-   [Kaggle Parking Dataset](https://www.kaggle.com/datasets/ammarnassanalhajali/pklot-dataset)
-   [Kaggle Parking Dataset2](https://www.kaggle.com/datasets/blanderbuss/parking-lot-dataset)
+   - [PKLot](https://public.roboflow.com/object-detection/pklot)
+   - [CNRPark-EXT](http://cnrpark.it/)
+   - [Kaggle Parking Dataset](https://www.kaggle.com/datasets/ammarnassanalhajali/pklot-dataset)
+   - [Kaggle Parking Dataset2](https://www.kaggle.com/datasets/blanderbuss/parking-lot-dataset)
    - If needed, manually annotate images using **LabelImg** or **Roboflow**.
    - Ensure data is in **YOLO format** (bounding box labels in `.txt` files).
 
@@ -42,6 +42,9 @@ Here's a **linear pipeline** for training and deploying a **YOLO model for parki
 ---
 
 ### **3️ Train YOLO Model**
+
+Our yolo model [https://huggingface.co/smartinezg/Yolo_parking/tree/main](https://huggingface.co/smartinezg/Yolo_parking/tree/main)
+
    - Install dependencies:
      ```bash
      pip install ultralytics

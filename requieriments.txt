@@ -3,3 +3,4 @@ fastapi
 websockets
 opencv-python-headless
 numpy
+uvicorn
